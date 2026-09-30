@@ -48,7 +48,7 @@ function cardContent(array $i):string{
   $h='';$heat=$i['heat']??null;
   if($heat&&$heat['max']>0){$dots='';for($n=1;$n<=$heat['max'];$n++)$dots.='<i'.($n<=$heat['level']?' class="on"':'').'></i>';$h.='<p class="idea-heat" role="img" aria-label="Heat: '.e($heat['label']).' ('.$heat['level'].' of '.$heat['max'].')"><b aria-hidden="true">'.$dots.'</b>'.e($heat['label']).'</p>';}
   $h.=($i['tagline']??'')!==''?'<p class="idea-tagline">'.e($i['tagline']).'</p>':($i['description_html']??'');
-  $link=$i['cta']??(($i['url']??'')!==''?['label'=>'Open on Midnight Duet','url'=>$i['url']]:null);
+  $link=$i['cta']??(($i['url']??'')!==''?['label'=>'Explore the idea','url'=>$i['url']]:null);
   if($link)$h.='<p class="idea-links"><a class="idea-cta" href="'.e($link['url']).'">'.e($link['label']).' →</a></p>';
   return $h;
 }
