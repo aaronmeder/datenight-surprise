@@ -37,8 +37,10 @@
         <button class="modal-close" type="button" aria-label="Close">×</button>
       </div>
       <div class="used-list"></div>
-      <button class="clear-history" type="button">Clear history</button>
-      <p class="privacy-note">Your history stays on this device only. It’s never sent anywhere, shared or used for anything else.</p>`;
+      <div class="modal-footer">
+        <p class="privacy-note">Your history stays on this device only. It’s never sent anywhere, shared or used for anything else.</p>
+        <button class="clear-history" type="button">Clear history</button>
+      </div>`;
     document.body.appendChild(modal);
 
     const modeInput = footer.querySelector('input');
