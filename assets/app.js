@@ -16,6 +16,7 @@
     let busy = false;
     let selectedIdea = null;
     let openTimer = null;
+    let awaitingReveal = false;
     const revealDuration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 30 : 1450;
     let remember = localStorage.getItem(STORAGE_MODE) !== 'off';
     let used = readUsed();
@@ -36,7 +37,8 @@
         <button class="modal-close" type="button" aria-label="Close">×</button>
       </div>
       <div class="used-list"></div>
-      <button class="clear-history" type="button">Clear history</button>`;
+      <button class="clear-history" type="button">Clear history</button>
+      <p class="privacy-note">Your history stays on this device only. It’s never sent anywhere, shared or used for anything else.</p>`;
     document.body.appendChild(modal);
 
     const modeInput = footer.querySelector('input');
@@ -76,6 +78,11 @@
       status.textContent = fromHistory ? 'From your history' : 'Enjoy your date night';
     }
 
+    // The main button always names the next step: shuffle, reveal the picked card, shuffle again.
+    function setLabel(text) {
+      button.querySelector('.button-label').textContent = text;
+    }
+
     function openSelected() {
       if (!selectedIdea || busy || card.classList.contains('revealed') || card.classList.contains('opening')) return;
       animateOpen();
@@ -83,6 +90,8 @@
 
     function animateOpen() {
       clearTimeout(openTimer);
+      awaitingReveal = false;
+      setLabel('Shuffle again');
       stage.classList.toggle('expanded-card', card.dataset.needsMoreRoom === 'true');
       card.classList.remove('ready-to-open');
       card.classList.remove('revealed');
@@ -95,6 +104,7 @@
         card.classList.add('revealed');
         stage.classList.remove('opening');
         status.textContent = 'Enjoy your date night';
+        updateHistoryUI();
       }, revealDuration);
     }
 
@@ -106,8 +116,8 @@
         ? usedIdeas.map(idea => `<button type="button" data-idea-id="${idea.id}"><span>${escapeHtml(idea.title)}</span><i>Open again →</i></button>`).join('')
         : '<p class="empty-history">Nothing played yet.</p>';
       const noneLeft = remember && remaining().length === 0 && ideas.length > 0;
-      button.disabled = busy || !ideas.length || noneLeft;
-      if (noneLeft) status.textContent = 'You’ve played them all – clear your history to start over';
+      button.disabled = busy || !ideas.length || (noneLeft && !awaitingReveal);
+      if (noneLeft && !awaitingReveal && !card.classList.contains('revealed')) status.textContent = 'You’ve played them all – clear your history to start over';
     }
 
     function escapeHtml(value) {
@@ -117,6 +127,7 @@
     }
 
     button.addEventListener('click', () => {
+      if (awaitingReveal) { openSelected(); return; }
       const pool = remaining();
       if (busy || !pool.length) return;
       busy = true;
@@ -152,8 +163,9 @@
         stage.classList.remove('shuffling');
         setTimeout(() => {
           card.classList.add('ready-to-open');
-          status.textContent = 'Tap the card to reveal it';
-          button.querySelector('.button-label').textContent = 'Shuffle again';
+          status.textContent = 'Your card is ready';
+          awaitingReveal = true;
+          setLabel('Reveal the card');
           busy = false;
           updateHistoryUI();
         }, 420);
@@ -191,12 +203,13 @@
     });
     card.tabIndex = 0;
     card.setAttribute('role', 'button');
-    card.setAttribute('aria-label', 'Open selected date-night card');
+    card.setAttribute('aria-label', 'Shuffle or reveal the card');
+    const useCard = () => selectedIdea ? openSelected() : button.click();
     card.addEventListener('click', event => {
-      if (!event.target.closest('a,button')) openSelected();
+      if (!event.target.closest('a,button')) useCard();
     });
     card.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openSelected(); }
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); useCard(); }
     });
 
     updateHistoryUI();
