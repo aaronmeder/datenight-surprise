@@ -80,6 +80,8 @@ jobs:
           test -f build/data/.htaccess
           test -f build/assets/app.js
           test -f build/assets/style.css
+          test -f build/favicon.ico
+          test -f build/site.webmanifest
           test ! -e build/.env
           test ! -e build/data/datenights.sqlite
           test ! -e build/data/ideas-cache.json
