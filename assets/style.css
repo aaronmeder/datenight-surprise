@@ -42,6 +42,10 @@ footer{align-items:center;gap:18px}.remember-control{display:flex;align-items:ce
 
 
 /* Idea details on the back of the card. */
-.card-content .idea-heat{display:flex;align-items:center;gap:7px;margin:0 0 12px;color:var(--rose);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.2em}.idea-heat b{display:inline-flex;gap:3px}.idea-heat i{width:6px;height:6px;border-radius:50%;border:1px solid rgba(215,137,157,.55)}.idea-heat i.on{background:var(--rose);border-color:var(--rose);box-shadow:0 0 6px rgba(224,105,138,.55)}
+.card-content .idea-heat{display:flex;align-items:center;gap:8px;margin:0 0 12px;color:var(--muted);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.2em}.idea-heat span:last-child{color:var(--rose)}.idea-heat b{display:inline-flex;gap:3px}.idea-heat .flame{width:14px;height:14px;fill:var(--rose);filter:drop-shadow(0 0 4px rgba(224,105,138,.45))}.idea-heat .flame--empty{fill:none;stroke:rgba(215,137,157,.45);stroke-width:1;filter:none}
 .card-content .idea-tagline{font:italic 400 17px/1.25 var(--serif);color:#f0c2cd;margin-bottom:12px}
 .card-content .idea-links{margin:18px 0 4px}.card-content .idea-cta{display:inline-block;padding:9px 16px;border:1px solid rgba(228,162,180,.35);border-radius:999px;color:#fff;background:linear-gradient(135deg,#a33151,#711c37);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+
+/* Tablets and up: the card is never narrower than 300px. */
+@media(min-width:600px){.stage{height:440px}.deck{width:300px;height:385px}}
+@media(min-width:800px){.stage{height:500px}}
