@@ -72,6 +72,7 @@
         link.rel = 'noopener noreferrer';
       });
       number.textContent = String(idea.id).padStart(2, '0');
+      number.parentElement.hidden = false;
       if (reveal) {
         animateOpen();
       }
@@ -148,6 +149,7 @@
         const preview = pool[Math.floor(Math.random() * pool.length)];
         title.textContent = preview.title;
         number.textContent = String(preview.id).padStart(2, '0');
+        number.parentElement.hidden = false;
       }, 130);
 
       setTimeout(() => {
