@@ -42,21 +42,16 @@ function loadIdeas():array{
   if(@file_put_contents($tmp,json_encode($fresh,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))!==false)@rename($tmp,IDEAS_CACHE);else @unlink($tmp);
   return $fresh;
 }
-// The back of the card. Built at render time so markup changes don't wait for the cache to expire.
+// The back of the card: heat, tagline and one button straight into the game (or its Midnight Duet page if it has no link).
+// Built at render time so markup changes don't wait for the cache to expire.
 function cardContent(array $i):string{
   $h='';$heat=$i['heat']??null;
-  if(($i['category']??'')!==''||$heat){
-    $h.='<p class="idea-meta">'.($i['category']!==''?'<span>'.e($i['category']).'</span>':'');
-    if($heat&&$heat['max']>0){$dots='';for($n=1;$n<=$heat['max'];$n++)$dots.='<i'.($n<=$heat['level']?' class="on"':'').'></i>';$h.='<span class="idea-heat" role="img" aria-label="Heat: '.e($heat['label']).' ('.$heat['level'].' of '.$heat['max'].')"><b aria-hidden="true">'.$dots.'</b>'.e($heat['label']).'</span>';}
-    $h.='</p>';
-  }
-  if(($i['tagline']??'')!=='')$h.='<p class="idea-tagline">'.e($i['tagline']).'</p>';
-  $h.=$i['description_html']??'';
-  if(!empty($i['tags']))$h.='<p class="idea-tags">'.implode('',array_map(fn($t)=>'<span>'.e($t).'</span>',$i['tags'])).'</p>';
-  $links=(!empty($i['cta'])?'<a class="idea-cta" href="'.e($i['cta']['url']).'">'.e($i['cta']['label']).' →</a>':'').(($i['url']??'')!==''?'<a class="idea-more" href="'.e($i['url']).'">More on Midnight Duet</a>':'');
-  if($links)$h.='<p class="idea-links">'.$links.'</p>';
+  if($heat&&$heat['max']>0){$dots='';for($n=1;$n<=$heat['max'];$n++)$dots.='<i'.($n<=$heat['level']?' class="on"':'').'></i>';$h.='<p class="idea-heat" role="img" aria-label="Heat: '.e($heat['label']).' ('.$heat['level'].' of '.$heat['max'].')"><b aria-hidden="true">'.$dots.'</b>'.e($heat['label']).'</p>';}
+  $h.=($i['tagline']??'')!==''?'<p class="idea-tagline">'.e($i['tagline']).'</p>':($i['description_html']??'');
+  $link=$i['cta']??(($i['url']??'')!==''?['label'=>'Open on Midnight Duet','url'=>$i['url']]:null);
+  if($link)$h.='<p class="idea-links"><a class="idea-cta" href="'.e($link['url']).'">'.e($link['label']).' →</a></p>';
   return $h;
 }
 $ideas=array_map(fn($i)=>['id'=>$i['id'],'title'=>$i['title'],'content'=>cardContent($i)],loadIdeas());
-?><!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#130b10"><meta name="application-name" content="<?=APP_TITLE?>"><meta name="apple-mobile-web-app-title" content="<?=APP_TITLE?>"><meta name="description" content="One night. One card. No overthinking."><title><?=APP_TITLE?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Italiana&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/style.css?v=3"></head><body>
+?><!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#130b10"><meta name="application-name" content="<?=APP_TITLE?>"><meta name="apple-mobile-web-app-title" content="<?=APP_TITLE?>"><meta name="description" content="One night. One card. No overthinking."><title><?=APP_TITLE?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Italiana&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/style.css?v=4"></head><body>
 <main class="app-shell"><header class="masthead"><div class="monogram" aria-hidden="true">A<span>×</span>A</div><p>Our private collection</p></header><section class="experience" aria-labelledby="page-title"><div class="intro"><p class="eyebrow">Tonight’s invitation</p><h1 id="page-title">Leave it<br>to <em>chance.</em></h1><p class="lede">One night. One card.<br>No overthinking.</p></div><div class="stage" id="stage" aria-live="polite"><div class="ambient-glow"></div><div class="deck"><div class="ghost-card ghost-one"></div><div class="ghost-card ghost-two"></div><article class="date-card" id="date-card"><div class="card-face card-front"><div class="card-ornament">✦</div><p class="card-kicker">A date for two</p><h2 id="card-title">Ready to tempt fate?</h2><span class="card-number">№ <b id="card-number">?</b></span></div><div class="card-face card-back"><button class="close-card" id="close-card" aria-label="Turn card over">×</button><p class="card-kicker">Tonight</p><h2 id="result-title"></h2><div class="card-content" id="result-content"></div></div></article></div><p class="shuffle-status" id="shuffle-status"><?=$ideas?'Your evening is waiting':'The deck is resting – try again soon'?></p></div><button class="shuffle-button" id="shuffle-button" <?=$ideas?'':'disabled'?>>✦ <span class="button-label">Shuffle the deck</span> ✦</button><p class="hint">Tap once. Let anticipation do the rest.</p></section><footer><span><?=count($ideas)?> private possibilities</span><span>Made for two</span></footer></main><script>window.DATE_IDEAS=<?=json_encode($ideas,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT)?>;</script><script src="assets/app.js?v=2" defer></script></body></html>
