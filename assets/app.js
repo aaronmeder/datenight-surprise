@@ -27,7 +27,6 @@
         Remember picks
       </label>
       <button class="used-link" type="button">Used cards <b>0</b></button>
-      <a class="admin-link" href="?admin=1" aria-label="Open private editor" title="Private editor">✦</a>
       <span class="made-for">Made for two</span>`;
 
     const modal = document.createElement('dialog');
@@ -203,75 +202,4 @@
 
     updateHistoryUI();
   }
-
-  document.querySelectorAll('[data-editor-form]').forEach(form => {
-    const editor = form.querySelector('[data-editor]');
-    const hidden = form.querySelector('[data-content-input]');
-    let savedRange = null;
-
-    const rememberSelection = () => {
-      const selection = window.getSelection();
-      if (selection.rangeCount && editor.contains(selection.anchorNode)) {
-        savedRange = selection.getRangeAt(0).cloneRange();
-      }
-    };
-    const restoreSelection = () => {
-      if (!savedRange) return false;
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(savedRange);
-      return true;
-    };
-
-    editor.addEventListener('keyup', rememberSelection);
-    editor.addEventListener('mouseup', rememberSelection);
-    editor.addEventListener('input', () => {
-      hidden.value = editor.innerHTML;
-      rememberSelection();
-    });
-    form.querySelectorAll('[data-command]').forEach(control => {
-      control.addEventListener('mousedown', event => {
-        event.preventDefault();
-        rememberSelection();
-      });
-      control.addEventListener('click', () => {
-        editor.focus();
-        const command = control.dataset.command;
-        let value = control.dataset.value || null;
-        if (command === 'createLink') {
-          value = prompt('Paste a link (https://…)');
-          if (!value) return;
-          let url;
-          try { url = new URL(value); } catch (_) { alert('Please enter a complete http or https link.'); return; }
-          if (!['http:', 'https:'].includes(url.protocol)) { alert('Please enter an http or https link.'); return; }
-          value = url.href;
-          restoreSelection();
-          const selection = window.getSelection();
-          if (!selection.rangeCount || selection.getRangeAt(0).collapsed) {
-            const link = document.createElement('a');
-            link.href = value;
-            link.textContent = value;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            const range = selection.rangeCount ? selection.getRangeAt(0) : document.createRange();
-            if (!selection.rangeCount) range.selectNodeContents(editor);
-            range.collapse(false);
-            range.insertNode(link);
-            range.setStartAfter(link);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            hidden.value = editor.innerHTML;
-            rememberSelection();
-            return;
-          }
-        }
-        restoreSelection();
-        document.execCommand(command, false, value);
-        hidden.value = editor.innerHTML;
-        rememberSelection();
-      });
-    });
-    form.addEventListener('submit', () => hidden.value = editor.innerHTML);
-  });
 })();

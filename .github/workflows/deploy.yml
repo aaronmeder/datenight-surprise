@@ -7,7 +7,7 @@ name: Deploy
 # Secrets: DEPLOY_KEY (private key), DEPLOY_SERVER, DEPLOY_USERNAME,
 #          DEPLOY_TARGET_DIR (site root, no trailing slash), optional DEPLOY_PORT (default 22),
 #          OPCACHE_RESET_TOKEN (for the host's __opcache_reset.php).
-# data/datenights.sqlite and .env stay on the server (never uploaded).
+# The ideas cache in data/ is written by the app on the server and never uploaded.
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
           php -l index.php
 
       # Everything that should end up on the server is collected here first, so the upload
-      # cannot accidentally include local env files or the sqlite database.
+      # cannot accidentally include local env files or cached data.
       - name: Assemble upload folder
         run: |
           rm -rf build
@@ -68,11 +68,11 @@ jobs:
             --exclude='.gitignore' \
             --exclude='.DS_Store' \
             --exclude='.env' \
-            --exclude='.env.example' \
             --exclude='README.md' \
             --exclude='data/*.sqlite' \
             --exclude='data/*.sqlite-shm' \
             --exclude='data/*.sqlite-wal' \
+            --exclude='data/ideas-cache.json' \
             ./ build/
 
           test -f build/index.php
@@ -82,6 +82,7 @@ jobs:
           test -f build/assets/style.css
           test ! -e build/.env
           test ! -e build/data/datenights.sqlite
+          test ! -e build/data/ideas-cache.json
           echo "Upload size: $(du -sh build | cut -f1), $(find build -type f | wc -l) files"
 
       - name: Upload over SFTP
@@ -94,7 +95,7 @@ jobs:
           localDir: build
           remoteDir: ${{ secrets.DEPLOY_TARGET_DIR }}
           # Removes files that were deleted locally – only ones this action uploaded before,
-          # so the sqlite database on the server stays untouched.
+          # so the ideas cache on the server stays untouched.
           removeExtraFilesOnServer: true
           dryRun: ${{ inputs.dry_run || false }}
           concurrency: 8
