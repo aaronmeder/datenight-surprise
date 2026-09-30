@@ -20,14 +20,13 @@
     let remember = localStorage.getItem(STORAGE_MODE) !== 'off';
     let used = readUsed();
 
-    footer.innerHTML = `
+    footer.insertAdjacentHTML('afterbegin', `
       <label class="remember-control">
         <input type="checkbox" ${remember ? 'checked' : ''}>
         <span class="remember-switch" aria-hidden="true"></span>
         Skip played ideas
       </label>
-      <button class="used-link" type="button">Played ideas <b>0</b></button>
-      <span class="made-for">Made for two</span>`;
+      <button class="used-link" type="button">Played ideas <b>0</b></button>`);
 
     const modal = document.createElement('dialog');
     modal.className = 'used-modal';
