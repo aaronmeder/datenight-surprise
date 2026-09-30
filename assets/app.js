@@ -140,6 +140,7 @@
       stage.classList.remove('expanded-card');
       stage.classList.remove('opening');
       clearTimeout(openTimer);
+      button.classList.remove('notice-me');
       stage.classList.add('shuffling');
       const phrases = ['Shuffling…', 'Mixing the deck…', 'Almost there…', 'And tonight it’s…'];
       let step = 0;
