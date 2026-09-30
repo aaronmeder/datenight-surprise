@@ -40,3 +40,9 @@ footer{align-items:center;gap:18px}.remember-control{display:flex;align-items:ce
 @keyframes ghost-left{to{transform:rotate(-9deg) translate(-22px,8px);opacity:0}}
 @keyframes ghost-right{to{transform:rotate(9deg) translate(22px,8px);opacity:0}}
 
+
+/* Idea details on the back of the card. */
+.card-content .idea-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 14px;margin:0 0 12px;color:var(--gold);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.2em}.idea-heat{display:inline-flex;align-items:center;gap:7px;color:var(--rose)}.idea-heat b{display:inline-flex;gap:3px}.idea-heat i{width:6px;height:6px;border-radius:50%;border:1px solid rgba(215,137,157,.55)}.idea-heat i.on{background:var(--rose);border-color:var(--rose);box-shadow:0 0 6px rgba(224,105,138,.55)}
+.card-content .idea-tagline{font:italic 400 17px/1.25 var(--serif);color:#f0c2cd;margin-bottom:12px}
+.card-content .idea-tags{display:flex;flex-wrap:wrap;gap:5px;margin:14px 0}.idea-tags span{padding:3px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:9px;letter-spacing:.04em}
+.card-content .idea-links{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:16px 0 4px}.card-content .idea-cta{display:inline-block;padding:9px 16px;border:1px solid rgba(228,162,180,.35);border-radius:999px;color:#fff;background:linear-gradient(135deg,#a33151,#711c37);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}.card-content .idea-more{color:var(--muted);font-size:10px}
