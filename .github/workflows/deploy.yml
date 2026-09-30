@@ -1,0 +1,106 @@
+name: Deploy
+
+# Uploads the app over SFTP. No build step (plain PHP + static files).
+# The transfer uses the SFTP subsystem only (no remote shell), so it works with chrooted/jailed accounts.
+# Only changed files are transferred: the action keeps MD5 hashes in .sftp_upload_action_hashes on the server.
+#
+# Secrets: DEPLOY_KEY (private key), DEPLOY_SERVER, DEPLOY_USERNAME,
+#          DEPLOY_TARGET_DIR (site root, no trailing slash), optional DEPLOY_PORT (default 22),
+#          OPCACHE_RESET_TOKEN (for the host's __opcache_reset.php).
+# data/datenights.sqlite and .env stay on the server (never uploaded).
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only list what would be uploaded'
+        type: boolean
+        default: false
+
+# Never let two deploys write to the server at the same time.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  PHP_VERSION: '8.3'
+  NODE_VERSION: '20'
+  SITE_URL: 'https://datenight-surprise.midnightduet.com'
+
+jobs:
+  deploy:
+    name: Test and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run tests
+        run: |
+          node --check assets/app.js
+          php -l index.php
+
+      # Everything that should end up on the server is collected here first, so the upload
+      # cannot accidentally include local env files or the sqlite database.
+      - name: Assemble upload folder
+        run: |
+          rm -rf build
+          rsync --archive \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='.DS_Store' \
+            --exclude='.env' \
+            --exclude='.env.example' \
+            --exclude='README.md' \
+            --exclude='data/*.sqlite' \
+            --exclude='data/*.sqlite-shm' \
+            --exclude='data/*.sqlite-wal' \
+            ./ build/
+
+          test -f build/index.php
+          test -f build/.htaccess
+          test -f build/data/.htaccess
+          test -f build/assets/app.js
+          test -f build/assets/style.css
+          test ! -e build/.env
+          test ! -e build/data/datenights.sqlite
+          echo "Upload size: $(du -sh build | cut -f1), $(find build -type f | wc -l) files"
+
+      - name: Upload over SFTP
+        uses: wangyucode/sftp-upload-action@v3
+        with:
+          host: ${{ secrets.DEPLOY_SERVER }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          privateKey: ${{ secrets.DEPLOY_KEY }}
+          localDir: build
+          remoteDir: ${{ secrets.DEPLOY_TARGET_DIR }}
+          # Removes files that were deleted locally – only ones this action uploaded before,
+          # so the sqlite database on the server stays untouched.
+          removeExtraFilesOnServer: true
+          dryRun: ${{ inputs.dry_run || false }}
+          concurrency: 8
+
+      # PHP opcache on the host does not notice changed files, so new code only goes live after a reset.
+      - name: Reset PHP opcache
+        if: ${{ !inputs.dry_run }}
+        run: |
+          curl -sf -H "X-Deploy-Token: ${{ secrets.OPCACHE_RESET_TOKEN }}" ${{ env.SITE_URL }}/__opcache_reset.php
