@@ -24,20 +24,20 @@
       <label class="remember-control">
         <input type="checkbox" ${remember ? 'checked' : ''}>
         <span class="remember-switch" aria-hidden="true"></span>
-        Remember picks
+        Skip played ideas
       </label>
-      <button class="used-link" type="button">Used cards <b>0</b></button>
+      <button class="used-link" type="button">Played ideas <b>0</b></button>
       <span class="made-for">Made for two</span>`;
 
     const modal = document.createElement('dialog');
     modal.className = 'used-modal';
     modal.innerHTML = `
       <div class="modal-heading">
-        <div><p class="eyebrow">Our history</p><h2>Used cards</h2></div>
+        <div><p class="eyebrow">Your history</p><h2>Played ideas</h2></div>
         <button class="modal-close" type="button" aria-label="Close">×</button>
       </div>
       <div class="used-list"></div>
-      <button class="clear-history" type="button">Forget all used cards</button>`;
+      <button class="clear-history" type="button">Clear history</button>`;
     document.body.appendChild(modal);
 
     const modeInput = footer.querySelector('input');
@@ -74,7 +74,7 @@
       if (reveal) {
         animateOpen();
       }
-      status.textContent = fromHistory ? 'A favourite from before' : 'The cards have spoken';
+      status.textContent = fromHistory ? 'From your history' : 'Enjoy your date night';
     }
 
     function openSelected() {
@@ -90,12 +90,12 @@
       card.classList.add('opening');
       stage.classList.add('opening');
       document.body.classList.add('card-is-open');
-      status.textContent = 'Unveiling tonight…';
+      status.textContent = 'Revealing…';
       openTimer = setTimeout(() => {
         card.classList.remove('opening');
         card.classList.add('revealed');
         stage.classList.remove('opening');
-        status.textContent = 'The cards have spoken';
+        status.textContent = 'Enjoy your date night';
       }, revealDuration);
     }
 
@@ -105,10 +105,10 @@
       usedLink.disabled = usedIdeas.length === 0;
       usedList.innerHTML = usedIdeas.length
         ? usedIdeas.map(idea => `<button type="button" data-idea-id="${idea.id}"><span>${escapeHtml(idea.title)}</span><i>Open again →</i></button>`).join('')
-        : '<p class="empty-history">No cards have been used yet.</p>';
+        : '<p class="empty-history">Nothing played yet.</p>';
       const noneLeft = remember && remaining().length === 0 && ideas.length > 0;
       button.disabled = busy || !ideas.length || noneLeft;
-      if (noneLeft) status.textContent = 'Every card has had its night';
+      if (noneLeft) status.textContent = 'You’ve played them all – clear your history to start over';
     }
 
     function escapeHtml(value) {
@@ -130,7 +130,7 @@
       stage.classList.remove('opening');
       clearTimeout(openTimer);
       stage.classList.add('shuffling');
-      const phrases = ['Mixing a little trouble…', 'No peeking…', 'Almost decided…', 'Fate is choosing…'];
+      const phrases = ['Shuffling…', 'Mixing the deck…', 'Almost there…', 'And tonight it’s…'];
       let step = 0;
       status.textContent = phrases[0];
       const phraseTimer = setInterval(() => status.textContent = phrases[++step % phrases.length], 700);
@@ -153,8 +153,8 @@
         stage.classList.remove('shuffling');
         setTimeout(() => {
           card.classList.add('ready-to-open');
-          status.textContent = 'Tap the card to open it';
-          button.querySelector('.button-label').textContent = 'Tempt fate again';
+          status.textContent = 'Tap the card to reveal it';
+          button.querySelector('.button-label').textContent = 'Shuffle again';
           busy = false;
           updateHistoryUI();
         }, 420);
@@ -164,7 +164,7 @@
     modeInput.addEventListener('change', () => {
       remember = modeInput.checked;
       localStorage.setItem(STORAGE_MODE, remember ? 'on' : 'off');
-      status.textContent = remember ? 'Past picks will stay out of the deck' : 'Every card is back in play';
+      status.textContent = remember ? 'Played ideas won’t come up again' : 'Every idea can come up again';
       updateHistoryUI();
     });
     usedLink.addEventListener('click', () => { updateHistoryUI(); modal.showModal(); });
@@ -180,7 +180,7 @@
       used = [];
       saveUsed();
       modal.close();
-      status.textContent = 'The whole deck is waiting again';
+      status.textContent = 'History cleared – every idea is back in the deck';
     });
     document.querySelector('#close-card').addEventListener('click', () => {
       card.classList.remove('revealed');
