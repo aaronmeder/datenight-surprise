@@ -1,4 +1,4 @@
-# After Dark
+# Datenight Surprise
 
 A private date-night idea shuffler for PHP 8+ with PDO SQLite. Upload the folder by FTP; `data/` must be writable by PHP.
 
