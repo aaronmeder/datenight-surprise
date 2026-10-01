@@ -72,3 +72,24 @@ footer{align-items:center;gap:18px}.remember-control{display:flex;align-items:ce
 .shuffle-button.notice-me:not(:disabled):after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);animation:notice-sheen 4.8s ease-in-out 1.2s infinite;pointer-events:none}
 @keyframes notice-glow{0%,100%{box-shadow:0 12px 35px rgba(111,24,50,.38),0 0 0 0 rgba(215,137,157,0),inset 0 1px rgba(255,255,255,.16)}50%{box-shadow:0 14px 42px rgba(150,34,68,.55),0 0 0 7px rgba(215,137,157,.1),inset 0 1px rgba(255,255,255,.16)}}
 @keyframes notice-sheen{0%{transform:translateX(-120%)}28%,100%{transform:translateX(120%)}}
+
+/* Below the first screen: questions people ask before (and instead of) shuffling. */
+.faq{position:relative;padding:150px 20px max(96px,env(safe-area-inset-bottom));background:radial-gradient(ellipse 70% 420px at 50% 320px,rgba(80,26,44,.16),transparent),linear-gradient(to bottom,rgba(9,5,7,0),rgba(9,5,7,.8) 180px,#090507 380px)}
+/* Same grain as the first screen, so the darker band doesn't read as flat black. */
+.faq:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.17;-webkit-mask-image:linear-gradient(transparent,#000 380px);mask-image:linear-gradient(transparent,#000 380px);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E")}
+.faq:before{content:"";position:absolute;top:150px;left:50%;width:min(60%,420px);height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(215,180,122,.35),transparent)}
+.faq-inner{position:relative;z-index:1;width:min(100%,760px);margin:0 auto;padding-top:70px}
+.faq h2{font:400 clamp(36px,8vw,56px)/1.02 var(--serif);letter-spacing:-.02em;margin:0 0 20px;max-width:13em}
+.faq-intro{margin:0 0 40px;max-width:36em;color:var(--muted);font-size:17px;line-height:1.65}.faq h2 em{color:var(--rose)}
+.faq details{border-bottom:1px solid var(--line)}.faq details:first-of-type{border-top:1px solid var(--line)}
+.faq summary{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 2px;font:400 22px/1.25 var(--serif);cursor:pointer;list-style:none;transition:color .2s}.faq summary::-webkit-details-marker{display:none}
+.faq summary:after{content:"+";flex:none;color:var(--gold);font:300 24px/1 var(--sans);transition:transform .3s ease}.faq details[open] summary:after{transform:rotate(45deg)}
+.faq summary:hover,.faq summary:focus-visible{color:var(--rose);outline:none}
+.faq details p{margin:-6px 0 24px;max-width:38em;color:var(--muted);font-size:16px;line-height:1.65}.faq details a{color:#f0c2cd;text-underline-offset:3px}
+.card-is-open .faq{filter:blur(7px);opacity:.28;transition:filter .55s ease,opacity .55s ease}
+@media(min-width:900px){.faq-inner{padding-top:96px}.faq summary{font-size:25px}}
+/* Keep the first screen's glow sized to the first screen now that the page scrolls on. */
+body{background:radial-gradient(circle at 50% 43%,#2c121c 0,#150c11 34%,#0d080b 72%) top/100% 100svh no-repeat,#0d080b}
+/* A quiet way down to the FAQ from the intro. */
+.faq-link{display:inline-block;margin-top:14px;color:#8b747d;font-size:13px;letter-spacing:.06em;text-decoration:underline;text-decoration-color:rgba(215,137,157,.25);text-underline-offset:4px;transition:color .2s}.faq-link:hover,.faq-link:focus-visible{color:var(--rose)}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
