@@ -69,9 +69,6 @@ jobs:
             --exclude='.DS_Store' \
             --exclude='.env' \
             --exclude='README.md' \
-            --exclude='data/*.sqlite' \
-            --exclude='data/*.sqlite-shm' \
-            --exclude='data/*.sqlite-wal' \
             --exclude='data/ideas-cache.json' \
             ./ build/
 
@@ -83,7 +80,6 @@ jobs:
           test -f build/favicon.ico
           test -f build/site.webmanifest
           test ! -e build/.env
-          test ! -e build/data/datenights.sqlite
           test ! -e build/data/ideas-cache.json
           echo "Upload size: $(du -sh build | cut -f1), $(find build -type f | wc -l) files"
 

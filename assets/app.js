@@ -168,7 +168,7 @@
         stage.classList.remove('shuffling');
         setTimeout(() => {
           card.classList.add('ready-to-open');
-          status.textContent = 'Your card is ready';
+          status.textContent = 'This is the way';
           awaitingReveal = true;
           setLabel('Reveal the card');
           busy = false;
